@@ -128,7 +128,7 @@
 .fin-hold{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:22px!important}
 .fin-hold li{border-top:3px solid var(--red);padding-top:8px;font-size:.78rem;line-height:1.45}
 .fin-hold strong{display:block;font-family:Barlow,sans-serif;text-transform:uppercase;letter-spacing:.07em;font-size:1.1rem;margin-bottom:2px}
-.fin-payback .detail-line{margin-top:22px;padding-top:10px;font-size:.92rem;font-weight:600;max-width:32ch}
+.fin-payback .detail-line{margin-top:22px;padding-top:10px;font-size:.88rem;line-height:1.45;font-weight:600;max-width:34ch}
 
 @media(max-height:800px) and (min-width:901px){
   .fin-tile>.fin-n{font-size:clamp(2.1rem,3.1vw,3.2rem)}

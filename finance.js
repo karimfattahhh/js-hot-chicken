@@ -53,7 +53,8 @@
     caseTag: () => `At ${fin.c} orders a day`,
     gap: () => { const v = vals(), side = x => x > 500 ? `${fmt.m(x)} over the US$400k budget` : x < -500 ? `${fmt.m(-x)} under the US$400k budget` : 'exactly on the US$400k budget';
       return `Cash to open is ${side(v.gap)}. With three months of running costs held in reserve, the plan is ${side(v.gapReserve)}.`; },
-    payNote: () => `Start-up cash of ${fmt.m(F[fin.c].cashBefore)} is earned back in month ${F[fin.c].payStartup}.`
+    payNote: () => { const d = F[fin.c]; return `Cash to open of ${fmt.m(d.cashBefore)} is earned back in month ${d.payStartup}. With taxes owed set aside, month ${d.payAfterTax}. Including the reserve, month ${d.payRequired}.`; },
+    payroll: () => `Payroll, team of ${F[fin.c].team}`
   };
   const num = (k, f = 'm', v = vals()) => `<b class="fin-n" data-k="${k}" data-f="${f}" data-v="${v[k]}">${fmt[f](v[k])}</b>`;
   const txt = k => `<span data-t="${k}">${text[k]()}</span>`;
@@ -66,7 +67,7 @@
   const fundRow = (label, k, cls, v) => `<li class="${cls}"><span>${label}</span><div class="fin-track"><i data-bar="${k}" data-max="${FUND_MAX}" style="transform:scaleX(${v[k] / FUND_MAX})"></i></div>${num(k, 'm', v)}</li>`;
   function numbersSlide() {
     const v = vals();
-    return `<section class="slide split fin fin-numbers"><div class="intro-copy"><h2>The numbers<br>behind<br>the chicken.</h2><p>One restaurant and a team of 18. This is what it takes to open, and what the plan gives back.</p>${caseSwitch()}${hint('Change the orders a day. Every number follows.')}</div>
+    return `<section class="slide split fin fin-numbers"><div class="intro-copy"><h2>The numbers<br>behind<br>the chicken.</h2><p>One restaurant and a team that starts at 18. This is what it takes to open, and what the plan gives back.</p>${caseSwitch()}${hint('Change the orders a day. Every number follows.')}</div>
 <div class="fin-board"><div class="fin-tiles">
 ${tile('Cash to open', num('cashBefore', 'm', v), 'Build, pre-opening costs and first stock', 'red')}
 ${tile('Break-even', `${num('breakeven', 'n', v)}<em>orders a day</em>`, `The plan serves ${num('orders', 'n', v)}`)}
@@ -75,7 +76,7 @@ ${tile('Year 1 sales', num('y1.sales', 'm', v), 'Net of VAT and levies')}
 ${tile('Year 1 profit after tax', num('y1.net', 'm', v), `${num('y1.netMargin', 'p', v)} of sales`)}
 ${tile('Cash made by month 24', num('cash24', 'm', v), 'After tax and all running costs')}
 </div><div class="fin-fund"><h3>The funding</h3><ul>${fundRow('Budget', 'budget', 'ink', v)}${fundRow('Cash to open', 'cashBefore', 'red', v)}${fundRow('With a 3-month reserve', 'required', 'blue', v)}</ul><p class="fin-gap" data-t="gap">${text.gap()}</p></div>
-<p class="image-note">Planning model in US dollars, opening provisionally in January 2027. Orders, prices and costs are assumptions still to be tested, not forecasts.</p></div></section>`;
+<p class="image-note">Planning model in US dollars, opening provisionally in January 2027. Orders, prices and costs are targets still to be tested, not forecasts. Profit after tax is an estimate until an accountant applies Ghana’s capital allowances.</p></div></section>`;
   }
 
   /* ---------- slide 2: the three scenarios ---------- */
@@ -84,12 +85,12 @@ ${tile('Cash made by month 24', num('cash24', 'm', v), 'After tax and all runnin
     const row = (l, b) => `<span class="fin-line"><span>${l}</span>${b}</span>`;
     return `<button class="fin-card c${c}" data-action="fin-case" data-value="${c}" aria-pressed="${fin.c === c}"><span class="fin-card-head"><b>${c}</b><span>orders<br>a day</span></span>
 <span class="fin-profit"><span>Year 1 profit after tax</span>${num('y1.net', 'm', v)}<span class="fin-track"><i style="transform:scaleX(${v['y1.net'] / top})"></i></span></span>
-${row('Year 1 sales', num('y1.sales', 'm', v))}${row('EBITDA', `<span>${num('y1.ebitda', 'm', v)} · ${num('y1.ebitdaMargin', 'p', v)}</span>`)}${row('Profit margin', num('y1.netMargin', 'p', v))}${row('Cash to open', num('cashBefore', 'm', v))}${row('Start-up cash back', num('payStartup', 'mo', v))}${row('Cash made by month 24', num('cash24', 'm', v))}</button>`;
+${row('Team', `<b class="fin-n">${F[c].team} people</b>`)}${row('Year 1 sales', num('y1.sales', 'm', v))}${row('EBITDA', `<span>${num('y1.ebitda', 'm', v)} · ${num('y1.ebitdaMargin', 'p', v)}</span>`)}${row('Profit margin', num('y1.netMargin', 'p', v))}${row('Break-even', `<b class="fin-n">${Math.round(F[c].breakeven)} orders a day</b>`)}${row('Cash to open', num('cashBefore', 'm', v))}${row('Start-up cash back', num('payStartup', 'mo', v))}</button>`;
   }
   function scenariosSlide() {
-    return `<section class="slide fin fin-scenarios"><div class="chapter-title"><h2>Three ways the year could go.</h2><div><p>Same menu, same prices, same team of 18. Only the number of orders changes.</p>${hint('Pick a scenario. It carries through the next slides.')}</div></div>
+    return `<section class="slide fin fin-scenarios"><div class="chapter-title"><h2>Three ways the year could go.</h2><div><p>Same menu, same prices. The team grows with the orders.</p>${hint('Pick a scenario. It carries through the next slides.')}</div></div>
 <div class="fin-cards">${CASES.map(scenarioCard).join('')}</div>
-<div class="fin-foot"><p><strong>Break-even is about ${Math.round(F[500].breakeven)} orders a day in all three.</strong> Rent, payroll and other fixed costs stay the same, so each extra order adds about ${fmt.d(F[500].contribution)} before tax.</p><p class="image-note">Scenarios, not forecasts. Each one assumes full volume from the first month and an average spend of ${fmt.d(F[300].basket)} per order. The busier cases add kitchen and cold-storage capacity to the build.</p></div></section>`;
+<div class="fin-foot"><p><strong>Break-even moves from about ${Math.round(F[300].breakeven)} to ${Math.round(F[700].breakeven)} orders a day as the team grows.</strong> Each extra order adds about ${fmt.d(F[500].contribution)} before fixed costs and tax.</p><p class="image-note">Scenarios, not forecasts. Each one assumes full volume from the first month and an average spend of ${fmt.d(F[300].basket)}. At 300 orders the 18-person team is short on the floor by the model’s own labour standards (${fmt.p(F[300].floorCover)} cover).</p></div></section>`;
   }
 
   /* ---------- slide 3: capex and opex, 6 months or 1 year ---------- */
@@ -103,7 +104,7 @@ ${row('Year 1 sales', num('y1.sales', 'm', v))}${row('EBITDA', `<span>${num('y1.
 ${cap('Construction and decoration', 'capex.build')}${cap('Kitchen equipment', 'capex.kitchen')}${cap('Freight, duties and installation', 'capex.freight')}${cap('Backup power, water and cold storage', 'capex.power')}${cap('Signage, smallwares, bikes and POS', 'capex.small')}${cap('Contingency', 'capex.contingency')}
 </ul><ul class="fin-extra">${cap('Pre-opening: branding, licences, training', 'pre.total')}${cap('First stock, 3 months of rent paid ahead, deposits', 'wc.total')}</ul><footer><span>Cash to open</span>${num('cashBefore', 'm', v)}</footer></article>
 <article class="fin-opex"><header><div><h3>Opex</h3><p data-t="period">${text.period()}</p></div>${num('opex.total', 'm', v)}</header>
-<div class="fin-group"><h4>People</h4><ul>${op('Payroll, team of 18', 'opex.payroll')}${op('Chef and manager housing', 'opex.housing')}</ul></div>
+<div class="fin-group"><h4>People</h4><ul>${op(txt('payroll'), 'opex.payroll')}${op('Chef and manager housing', 'opex.housing')}</ul></div>
 <div class="fin-group"><h4>Place</h4><ul>${op('Rent', 'opex.rent')}${op('Utilities, gas, cleaning, delivery', 'opex.running')}</ul></div>
 <div class="fin-group"><h4>Selling</h4><ul>${op('Delivery-app commission', 'opex.commission')}${op('Marketing', 'opex.marketing')}${op('Card fees', 'opex.fees')}${op('Repairs and small replacements', 'opex.repairs')}</ul></div><footer><span>Average a month</span>${num('opex.month', 'm', v)}</footer></article></div>
 <div class="fin-strip">${strip('Sales', num('p.sales', 'm', v))}${strip('Food and packaging', num('cogs', 'm', v))}${strip('Opex', num('opex.total', 'm', v))}${strip('EBITDA', num('p.ebitda', 'm', v))}${strip('Profit after tax', num('p.net', 'm', v))}${strip('Cash generated', num('p.fcf', 'm', v))}${strip('Start-up cash earned back', num('p.back', 'p', v), 'stamp')}</div>
@@ -118,7 +119,7 @@ ${cap('Construction and decoration', 'capex.build')}${cap('Kitchen equipment', '
     const d = F[fin.c], pm = d.payStartup, py = Y(d.cum[pm - 1]), ty = Y(d.cashBefore);
     const axes = `<svg class="fin-axes" viewBox="0 0 ${W} ${H}" aria-hidden="true">${[0, .5, 1, 1.5, 2].map(t => `<line x1="${L}" x2="${W - R}" y1="${Y(t * 1e6)}" y2="${Y(t * 1e6)}"/><text x="${L - 9}" y="${Y(t * 1e6) + 4}" text-anchor="end">${t ? 'US$' + t + 'm' : '0'}</text>`).join('')}${[0, 6, 12, 18, 24].map(m => `<text x="${X(m)}" y="${H - 12}" text-anchor="${m === 24 ? 'end' : m ? 'middle' : 'start'}">${m ? 'Month ' + m : 'Opening'}</text>`).join('')}</svg>`;
     const plot = `<svg id="fin-plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cash generated after opening over 24 months at 300, 500 and 700 orders a day. ${text.payNote()}">
-<line class="need" x1="${L}" x2="${W - R}" y1="${ty}" y2="${ty}"/><text class="need-label" x="${pm > 8 ? L + 10 : W - R - 4}" y="${ty - 8}" text-anchor="${pm > 8 ? 'start' : 'end'}">Cash to open ${fmt.m(d.cashBefore)}</text>
+<line class="need" x1="${L}" x2="${W - R}" y1="${ty}" y2="${ty}"/><text class="need-label" x="${W - R - 4}" y="${ty + 18}" text-anchor="end">Cash to open ${fmt.m(d.cashBefore)}</text>
 ${CASES.map(c => `<path class="c${c}${c === fin.c ? ' on' : ''}" d="${path(c)}"/><text class="end${c === fin.c ? ' on' : ''}" x="${X(24) - 6}" y="${Y(F[c].cum[23]) - 9}" text-anchor="end">${c} a day</text>`).join('')}
 <line class="drop" x1="${X(pm)}" x2="${X(pm)}" y1="${py}" y2="${H - B}"/><circle cx="${X(pm)}" cy="${py}" r="7"/><text class="pay" x="${X(pm) - 12}" y="${py - 12}" text-anchor="end">Month ${pm}</text></svg>`;
     return axes + plot;
@@ -126,7 +127,7 @@ ${CASES.map(c => `<path class="c${c}${c === fin.c ? ' on' : ''}" d="${path(c)}"/
   function paybackSlide() {
     return `<section class="slide split fin fin-payback"><div class="intro-copy"><h2>Earning<br>it back.</h2><p>The cash the restaurant generates after opening, month by month, set against the cash it took to open.</p>${caseSwitch()}<p class="detail-line" id="fin-pay-note" data-t="payNote">${text.payNote()}</p></div>
 <div class="fin-back"><div class="fin-chart" id="fin-chart">${chartMarkup()}</div>
-<ul class="fin-hold"><li><strong>The price</strong>An average spend of ${fmt.d(F[300].basket)} per order, about ${fmt.p(F[300].priceUp)} above the first menu draft. Test it with customers.</li><li><strong>The volume</strong>Every case trades at full volume from the first month. A slower start pushes payback later.</li><li><strong>The team</strong>18 people in every case. The busier cases need the kitchen to work faster than the original staffing plan.</li></ul>
+<ul class="fin-hold"><li><strong>The price</strong>An average spend of ${fmt.d(F[300].basket)} per order, about ${fmt.p(F[300].priceUp)} above the first menu draft. At that draft’s ${fmt.d(F.sens.spend)}, the margin at 300 orders would be about ${fmt.p(F.sens.margin)}.</li><li><strong>The volume</strong>Every case trades at full volume from the first month. A slower start pushes payback later.</li><li><strong>The team</strong>${F[300].team} people at 300 orders, where the floor team is stretched. ${F[500].team} at 500 and ${F[700].team} at 700, sized to the model’s labour standards.</li></ul>
 <p class="image-note">Cumulative free cash flow after tax, in US dollars. No sale value, debt or dividends are assumed.</p></div></section>`;
   }
 
