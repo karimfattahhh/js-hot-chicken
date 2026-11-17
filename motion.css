@@ -1,0 +1,17 @@
+/* J's deck motion: GSAP drives entrances and the paper wipe (motion.js). CSS keyframe entrances are switched off. */
+.slide{animation:none}
+.scene .world-shell,.scene .world-full{animation:none}
+.ln{display:block;overflow:hidden;padding:.12em .1em .14em 0;margin:-.12em 0 -.14em}
+.ln-i{display:block;will-change:transform}
+.wd{display:inline-block;white-space:pre}
+/* hover lifts use translate, so they never fight a GSAP transform tween */
+.action,.toggle button,.heat-buttons button{transition:translate .15s,box-shadow .15s,background-color .2s,color .2s}
+.action:hover,.toggle button:hover,.heat-buttons button:hover{transform:none;translate:-1px -1px}
+.action:active,.toggle button:active,.heat-buttons button:active{transform:none;translate:2px 2px}
+.gantt-bar{transition:opacity .25s;transform-origin:0 50%}
+#wipe{position:fixed;left:0;right:0;top:var(--header);bottom:var(--footer);z-index:15;overflow:hidden;pointer-events:none;visibility:hidden}
+#wipe .sheet{position:absolute;top:-2%;bottom:-2%;left:-7%;width:114%;display:flex;align-items:center;justify-content:center;gap:2.2vw;color:var(--cream);background-size:cover;background-position:center;will-change:transform;font-family:Barlow,sans-serif;text-transform:uppercase}
+#wipe .sheet b{font-size:clamp(7rem,22vw,22rem);line-height:.8;letter-spacing:-.02em}
+#wipe .sheet span{font-size:clamp(1.2rem,2.6vw,2.6rem);letter-spacing:.06em;max-width:12ch;line-height:1}
+#wipe .sheet img{height:clamp(4rem,13vw,13rem);opacity:.95}
+@media(prefers-reduced-motion:reduce){#wipe{display:none}}
