@@ -37,7 +37,7 @@
     return {
       orders: d.orders, breakeven: d.breakeven, basket: d.basket, contribution: d.contribution,
       budget: d.budget, cashBefore: d.cashBefore, required: d.required, gap: d.cashBefore - d.budget, gapReserve: d.required - d.budget,
-      'y1.sales': d.y1.sales, 'y1.ebitda': d.y1.ebitda, 'y1.ebitdaMargin': d.y1.ebitda / d.y1.sales, 'y1.net': d.y1.net, 'y1.netMargin': d.y1.net / d.y1.sales,
+      'y1.sales': d.y1.sales, 'y1.ebitda': d.y1.ebitda, 'y1.ebitdaMargin': d.y1.ebitda / d.y1.sales, 'y1.net': d.y1.net, 'y1.roi': d.y1.net / d.cashBefore, 'y1.netMargin': d.y1.net / d.y1.sales,
       payStartup: d.payStartup, cash24: d.cash24,
       'capex.build': d.capex.build, 'capex.kitchen': d.capex.kitchen, 'capex.freight': d.capex.freight, 'capex.power': d.capex.power,
       'capex.small': d.capex.small, 'capex.contingency': d.capex.contingency, 'capex.total': d.capex.total,
@@ -53,7 +53,7 @@
     caseTag: () => `At ${fin.c} orders a day`,
     gap: () => { const v = vals(), side = x => x > 500 ? `${fmt.m(x)} over the US$400k budget` : x < -500 ? `${fmt.m(-x)} under the US$400k budget` : 'exactly on the US$400k budget';
       return `Cash to open is ${side(v.gap)}. With three months of running costs held in reserve, the plan is ${side(v.gapReserve)}.`; },
-    payNote: () => { const d = F[fin.c]; return `Cash to open of ${fmt.m(d.cashBefore)} is earned back in month ${d.payStartup}. With taxes owed set aside, month ${d.payAfterTax}. Including the reserve, month ${d.payRequired}.`; },
+    payNote: () => { const d = F[fin.c]; return `Cash to open of ${fmt.m(d.cashBefore)} is earned back in month ${d.payStartup}. Including the reserve, month ${d.payRequired}. With taxes owed set aside, month ${d.payAfterTax}.`; },
     payroll: () => `Payroll, team of ${F[fin.c].team}`
   };
   const num = (k, f = 'm', v = vals()) => `<b class="fin-n" data-k="${k}" data-f="${f}" data-v="${v[k]}">${fmt[f](v[k])}</b>`;
@@ -67,7 +67,7 @@
   const fundRow = (label, k, cls, v) => `<li class="${cls}"><span>${label}</span><div class="fin-track"><i data-bar="${k}" data-max="${FUND_MAX}" style="transform:scaleX(${v[k] / FUND_MAX})"></i></div>${num(k, 'm', v)}</li>`;
   function numbersSlide() {
     const v = vals();
-    return `<section class="slide split fin fin-numbers"><div class="intro-copy"><h2>The numbers<br>behind<br>the chicken.</h2><p>One restaurant and a team that starts at 18. This is what it takes to open, and what the plan gives back.</p>${caseSwitch()}${hint('Change the orders a day. Every number follows.')}</div>
+    return `<section class="slide split fin fin-numbers"><div class="intro-copy"><h2>The numbers<br>behind<br>the chicken.</h2><p>One restaurant, one build, a team of 18. The number of orders decides what the plan gives back.</p>${caseSwitch()}${hint('Change the orders a day. Every number follows.')}</div>
 <div class="fin-board"><div class="fin-tiles">
 ${tile('Cash to open', num('cashBefore', 'm', v), 'Build, pre-opening costs and first stock', 'red')}
 ${tile('Break-even', `${num('breakeven', 'n', v)}<em>orders a day</em>`, `The plan serves ${num('orders', 'n', v)}`)}
@@ -85,12 +85,12 @@ ${tile('Cash made by month 24', num('cash24', 'm', v), 'After tax and all runnin
     const row = (l, b) => `<span class="fin-line"><span>${l}</span>${b}</span>`;
     return `<button class="fin-card c${c}" data-action="fin-case" data-value="${c}" aria-pressed="${fin.c === c}"><span class="fin-card-head"><b>${c}</b><span>orders<br>a day</span></span>
 <span class="fin-profit"><span>Year 1 profit after tax</span>${num('y1.net', 'm', v)}<span class="fin-track"><i style="transform:scaleX(${v['y1.net'] / top})"></i></span></span>
-${row('Team', `<b class="fin-n">${F[c].team} people</b>`)}${row('Year 1 sales', num('y1.sales', 'm', v))}${row('EBITDA', `<span>${num('y1.ebitda', 'm', v)} · ${num('y1.ebitdaMargin', 'p', v)}</span>`)}${row('Profit margin', num('y1.netMargin', 'p', v))}${row('Break-even', `<b class="fin-n">${Math.round(F[c].breakeven)} orders a day</b>`)}${row('Cash to open', num('cashBefore', 'm', v))}${row('Start-up cash back', num('payStartup', 'mo', v))}</button>`;
+${row('Year 1 sales', num('y1.sales', 'm', v))}${row('EBITDA', `<span>${num('y1.ebitda', 'm', v)} · ${num('y1.ebitdaMargin', 'p', v)}</span>`)}${row('Profit margin', num('y1.netMargin', 'p', v))}${row('Year 1 return on cash to open', num('y1.roi', 'p', v))}${row('Start-up cash back', num('payStartup', 'mo', v))}${row('Cash made by month 24', num('cash24', 'm', v))}</button>`;
   }
   function scenariosSlide() {
-    return `<section class="slide fin fin-scenarios"><div class="chapter-title"><h2>Three ways the year could go.</h2><div><p>Same menu, same prices. The team grows with the orders.</p>${hint('Pick a scenario. It carries through the next slides.')}</div></div>
+    return `<section class="slide fin fin-scenarios"><div class="chapter-title"><h2>Three ways the year could go.</h2><div><p>One restaurant: the same US$400k build, the same team of 18, the same prices. Only the orders change.</p>${hint('Pick a scenario. It carries through the next slides.')}</div></div>
 <div class="fin-cards">${CASES.map(scenarioCard).join('')}</div>
-<div class="fin-foot"><p><strong>Break-even moves from about ${Math.round(F[300].breakeven)} to ${Math.round(F[700].breakeven)} orders a day as the team grows.</strong> Each extra order adds about ${fmt.d(F[500].contribution)} before fixed costs and tax.</p><p class="image-note">Scenarios, not forecasts. Each one assumes full volume from the first month and an average spend of ${fmt.d(F[300].basket)}. At 300 orders the 18-person team is short on the floor by the model’s own labour standards (${fmt.p(F[300].floorCover)} cover).</p></div></section>`;
+<div class="fin-foot"><p><strong>Cash to open is ${fmt.m(F[300].cashBefore)} and break-even is about ${Math.round(F[500].breakeven)} orders a day in all three.</strong> The kitchen is built once, for up to 700 orders. Each extra order adds about ${fmt.d(F[500].contribution)} before fixed costs and tax.</p><p class="image-note">Scenarios, not forecasts. Each one assumes full volume from the first month and an average spend of ${fmt.d(F[300].basket)}. By the model’s own labour standards, 18 people cover about ${fmt.p(F[300].floorCover)} of the floor work at 300 orders, ${fmt.p(F[500].floorCover)} at 500 and ${fmt.p(F[700].floorCover)} at 700.</p></div></section>`;
   }
 
   /* ---------- slide 3: capex and opex, 6 months or 1 year ---------- */
@@ -127,7 +127,7 @@ ${CASES.map(c => `<path class="c${c}${c === fin.c ? ' on' : ''}" d="${path(c)}"/
   function paybackSlide() {
     return `<section class="slide split fin fin-payback"><div class="intro-copy"><h2>Earning<br>it back.</h2><p>The cash the restaurant generates after opening, month by month, set against the cash it took to open.</p>${caseSwitch()}<p class="detail-line" id="fin-pay-note" data-t="payNote">${text.payNote()}</p></div>
 <div class="fin-back"><div class="fin-chart" id="fin-chart">${chartMarkup()}</div>
-<ul class="fin-hold"><li><strong>The price</strong>An average spend of ${fmt.d(F[300].basket)} per order, about ${fmt.p(F[300].priceUp)} above the first menu draft. At that draft’s ${fmt.d(F.sens.spend)}, the margin at 300 orders would be about ${fmt.p(F.sens.margin)}.</li><li><strong>The volume</strong>Every case trades at full volume from the first month. A slower start pushes payback later.</li><li><strong>The team</strong>${F[300].team} people at 300 orders, where the floor team is stretched. ${F[500].team} at 500 and ${F[700].team} at 700, sized to the model’s labour standards.</li></ul>
+<ul class="fin-hold"><li><strong>The price</strong>An average spend of ${fmt.d(F[300].basket)} per order, about ${fmt.p(F[300].priceUp)} above the first menu draft. At that draft’s ${fmt.d(F.sens.spend)}, the margin at 300 orders would be about ${fmt.p(F.sens.margin)}.</li><li><strong>The volume</strong>Every case trades at full volume from the first month. A slower start pushes payback later.</li><li><strong>The team</strong>18 people at every volume. By the model’s labour standards that is already stretched at 300 orders and well short at 500 and 700.</li></ul>
 <p class="image-note">Cumulative free cash flow after tax, in US dollars. No sale value, debt or dividends are assumed.</p></div></section>`;
   }
 
