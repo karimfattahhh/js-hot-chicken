@@ -1,11 +1,11 @@
 /* J's deck: the investor numbers. Four slides (capex-opex, numbers, scenarios, payback) built from finance.data.js,
    which finance/emit.py writes from the feasibility workbook. Loaded after app.js and before motion.js.
-   One shared state: state.fin = { c: orders a day (300 | 500 | 700), p: months shown (6 | 12) }. */
+   One shared state: state.fin = { c: orders a day (200 | 400 | 600), p: months shown (6 | 12) }. */
 (() => {
   const F = window.JS_FIN;
   if (!F || typeof slides === 'undefined') return;
-  const fin = state.fin = { c: 300, p: 12 };
-  const CASES = [300, 500, 700];
+  const fin = state.fin = { c: 200, p: 12 };
+  const CASES = [200, 400, 600];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* hand-cut edges for the coloured panels: fixed seed, so the cut never changes between visits */
@@ -54,6 +54,7 @@
     gap: () => { const v = vals(), side = x => x > 500 ? `${fmt.m(x)} over the US$400k budget` : x < -500 ? `${fmt.m(-x)} under the US$400k budget` : 'exactly on the US$400k budget';
       return `Cash to open is ${side(v.gap)}. With three months of running costs held in reserve, the plan is ${side(v.gapReserve)}.`; },
     payNote: () => { const d = F[fin.c]; return `Cash to open of ${fmt.m(d.cashBefore)} is earned back in month ${d.payStartup}. Including the reserve, month ${d.payRequired}. With taxes owed set aside, month ${d.payAfterTax}.`; },
+    draft: () => F.sens.margin > 0.005 ? `At that draft’s ${fmt.d(F.sens.spend)}, the margin at 200 orders would be about ${fmt.p(F.sens.margin)}.` : `At that draft’s ${fmt.d(F.sens.spend)}, 200 orders a day would not make a profit.`,
     payroll: () => `Payroll, team of ${F[fin.c].team}`
   };
   const num = (k, f = 'm', v = vals()) => `<b class="fin-n" data-k="${k}" data-f="${f}" data-v="${v[k]}">${fmt[f](v[k])}</b>`;
@@ -81,7 +82,7 @@ ${tile('Cash made by month 24', num('cash24', 'm', v), 'After tax and all runnin
 
   /* ---------- slide 2: the three scenarios ---------- */
   function scenarioCard(c) {
-    const v = vals(c, 12), top = F[700].y1.net;
+    const v = vals(c, 12), top = F[600].y1.net;
     const row = (l, b) => `<span class="fin-line"><span>${l}</span>${b}</span>`;
     return `<button class="fin-card c${c}" data-action="fin-case" data-value="${c}" aria-pressed="${fin.c === c}"><span class="fin-card-head"><b>${c}</b><span>orders<br>a day</span></span>
 <span class="fin-profit"><span>Year 1 profit after tax</span>${num('y1.net', 'm', v)}<span class="fin-track"><i style="transform:scaleX(${v['y1.net'] / top})"></i></span></span>
@@ -90,7 +91,7 @@ ${row('Year 1 sales', num('y1.sales', 'm', v))}${row('EBITDA', `<span>${num('y1.
   function scenariosSlide() {
     return `<section class="slide fin fin-scenarios"><div class="chapter-title"><h2>Three ways the year could go.</h2><div><p>One restaurant: the same US$400k build, the same team of 18, the same prices. Only the orders change.</p>${hint('Pick a scenario. It carries through the next slides.')}</div></div>
 <div class="fin-cards">${CASES.map(scenarioCard).join('')}</div>
-<div class="fin-foot"><p><strong>Cash to open is ${fmt.m(F[300].cashBefore)} and break-even is about ${Math.round(F[500].breakeven)} orders a day in all three.</strong> The kitchen is built once, for up to 700 orders. Each extra order adds about ${fmt.d(F[500].contribution)} before fixed costs and tax.</p><p class="image-note">Scenarios, not forecasts. Each one assumes full volume from the first month and an average spend of ${fmt.d(F[300].basket)}. By the model’s own labour standards, 18 people cover about ${fmt.p(F[300].floorCover)} of the floor work at 300 orders, ${fmt.p(F[500].floorCover)} at 500 and ${fmt.p(F[700].floorCover)} at 700.</p></div></section>`;
+<div class="fin-foot"><p><strong>Cash to open is ${fmt.m(F[200].cashBefore)} and break-even is about ${Math.round(F[400].breakeven)} orders a day in all three.</strong> The kitchen is built once, for up to 600 orders. Each extra order adds about ${fmt.d(F[400].contribution)} before fixed costs and tax.</p><p class="image-note">Scenarios, not forecasts. Each one assumes full volume from the first month and an average spend of ${fmt.d(F[200].basket)}. By the model’s own labour standards, 18 people cover about ${fmt.p(F[200].floorCover)} of the floor work at 200 orders, ${fmt.p(F[400].floorCover)} at 400 and ${fmt.p(F[600].floorCover)} at 600.</p></div></section>`;
   }
 
   /* ---------- slide 3: capex and opex, 6 months or 1 year ---------- */
@@ -118,8 +119,8 @@ ${cap('Construction and decoration', 'capex.build')}${cap('Kitchen equipment', '
   function chartMarkup() {
     const d = F[fin.c], pm = d.payStartup, py = Y(d.cum[pm - 1]), ty = Y(d.cashBefore);
     const axes = `<svg class="fin-axes" viewBox="0 0 ${W} ${H}" aria-hidden="true">${[0, .5, 1, 1.5, 2].map(t => `<line x1="${L}" x2="${W - R}" y1="${Y(t * 1e6)}" y2="${Y(t * 1e6)}"/><text x="${L - 9}" y="${Y(t * 1e6) + 4}" text-anchor="end">${t ? 'US$' + t + 'm' : '0'}</text>`).join('')}${[0, 6, 12, 18, 24].map(m => `<text x="${X(m)}" y="${H - 12}" text-anchor="${m === 24 ? 'end' : m ? 'middle' : 'start'}">${m ? 'Month ' + m : 'Opening'}</text>`).join('')}</svg>`;
-    const plot = `<svg id="fin-plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cash generated after opening over 24 months at 300, 500 and 700 orders a day. ${text.payNote()}">
-<line class="need" x1="${L}" x2="${W - R}" y1="${ty}" y2="${ty}"/><text class="need-label" x="${W - R - 4}" y="${ty + 18}" text-anchor="end">Cash to open ${fmt.m(d.cashBefore)}</text>
+    const plot = `<svg id="fin-plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="Cash generated after opening over 24 months at 200, 400 and 600 orders a day. ${text.payNote()}">
+<line class="need" x1="${L}" x2="${W - R}" y1="${ty}" y2="${ty}"/><text class="need-label" ${pm > 12 ? `x="${L + 8}" y="${ty - 7}" text-anchor="start"` : `x="${W - R - 4}" y="${ty + 18}" text-anchor="end"`}>Cash to open ${fmt.m(d.cashBefore)}</text>
 ${CASES.map(c => `<path class="c${c}${c === fin.c ? ' on' : ''}" d="${path(c)}"/><text class="end${c === fin.c ? ' on' : ''}" x="${X(24) - 6}" y="${Y(F[c].cum[23]) - 9}" text-anchor="end">${c} a day</text>`).join('')}
 <line class="drop" x1="${X(pm)}" x2="${X(pm)}" y1="${py}" y2="${H - B}"/><circle cx="${X(pm)}" cy="${py}" r="7"/><text class="pay" x="${X(pm) - 12}" y="${py - 12}" text-anchor="end">Month ${pm}</text></svg>`;
     return axes + plot;
@@ -127,7 +128,7 @@ ${CASES.map(c => `<path class="c${c}${c === fin.c ? ' on' : ''}" d="${path(c)}"/
   function paybackSlide() {
     return `<section class="slide split fin fin-payback"><div class="intro-copy"><h2>Earning<br>it back.</h2><p>The cash the restaurant generates after opening, month by month, set against the cash it took to open.</p>${caseSwitch()}<p class="detail-line" id="fin-pay-note" data-t="payNote">${text.payNote()}</p></div>
 <div class="fin-back"><div class="fin-chart" id="fin-chart">${chartMarkup()}</div>
-<ul class="fin-hold"><li><strong>The price</strong>An average spend of ${fmt.d(F[300].basket)} per order, about ${fmt.p(F[300].priceUp)} above the first menu draft. At that draft’s ${fmt.d(F.sens.spend)}, the margin at 300 orders would be about ${fmt.p(F.sens.margin)}.</li><li><strong>The volume</strong>Every case trades at full volume from the first month. A slower start pushes payback later.</li><li><strong>The team</strong>18 people at every volume. By the model’s labour standards that is already stretched at 300 orders and well short at 500 and 700.</li></ul>
+<ul class="fin-hold"><li><strong>The price</strong>An average spend of ${fmt.d(F[200].basket)} per order, about ${fmt.p(F[200].priceUp)} above the first menu draft. ${text.draft()}</li><li><strong>The volume</strong>Every case trades at full volume from the first month. A slower start pushes payback later.</li><li><strong>The team</strong>18 people at every volume. By the model’s labour standards that covers 200 orders and is short at 400 and 600.</li></ul>
 <p class="image-note">Cumulative free cash flow after tax, in US dollars. No sale value, debt or dividends are assumed.</p></div></section>`;
   }
 

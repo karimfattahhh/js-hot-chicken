@@ -46,9 +46,9 @@
 .fin-scenarios .chapter-title .interaction-hint{margin-top:10px!important}
 .fin-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px}
 .fin-card{display:flex;flex-direction:column;gap:0;font:inherit;text-align:left;color:var(--ink);cursor:pointer;padding:18px 22px 14px;border:1.5px solid var(--ink);border-radius:1px;background:var(--cream) var(--p-cream) center/cover fixed;box-shadow:3px 3px 0 var(--hard);transition:translate .2s,box-shadow .2s;min-width:0}
-.fin-card.c300{rotate:-.6deg}.fin-card.c700{rotate:.6deg}
-.fin-card.c500{background:var(--gold) var(--p-gold) center/cover fixed}
-.fin-card.c700{background:var(--red) var(--p-red) center/cover fixed;color:var(--cream)}
+.fin-card.c200{rotate:-.6deg}.fin-card.c600{rotate:.6deg}
+.fin-card.c400{background:var(--gold) var(--p-gold) center/cover fixed}
+.fin-card.c600{background:var(--red) var(--p-red) center/cover fixed;color:var(--cream)}
 .fin-card:hover{translate:-2px -2px;box-shadow:6px 6px 0 var(--hard)}
 .fin-card[aria-pressed=true]{translate:-4px -6px;box-shadow:10px 11px 0 var(--hard)}
 .fin-card-head{display:flex;align-items:flex-end;gap:10px;font-family:Barlow,sans-serif;text-transform:uppercase}
@@ -58,12 +58,12 @@
 .fin-profit{display:block;margin:14px 0 8px;padding-top:10px;border-top:3px solid currentColor}
 .fin-profit>span:first-child{display:block;font-family:Barlow,sans-serif;text-transform:uppercase;letter-spacing:.09em;font-size:.86rem}
 .fin-profit .fin-n{display:block;font-size:clamp(2.4rem,3.6vw,3.8rem);line-height:1.02}
-.fin-card.c300 .fin-profit .fin-n{color:var(--red)}
+.fin-card.c200 .fin-profit .fin-n{color:var(--red)}
 .fin-profit .fin-track{margin-top:6px;height:10px;background:rgba(40,35,31,.14)}
-.fin-card.c500 .fin-track i{background:var(--ink)}
-.fin-card.c700 .fin-track{background:rgba(247,237,215,.25)}.fin-card.c700 .fin-track i{background:var(--cream)}
+.fin-card.c400 .fin-track i{background:var(--ink)}
+.fin-card.c600 .fin-track{background:rgba(247,237,215,.25)}.fin-card.c600 .fin-track i{background:var(--cream)}
 .fin-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:3px 0;border-top:1px solid rgba(40,35,31,.22);font-size:.8rem}
-.fin-card.c700 .fin-line{border-top-color:rgba(247,237,215,.35)}
+.fin-card.c600 .fin-line{border-top-color:rgba(247,237,215,.35)}
 .fin-line .fin-n{font-size:1.2rem}
 .fin-foot{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:start;margin-top:22px}
 .fin-foot p{margin:0;font-size:.86rem;line-height:1.45;max-width:64ch}
